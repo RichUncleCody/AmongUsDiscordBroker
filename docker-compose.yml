@@ -5,7 +5,7 @@ services:
     image: traefik:v2.0
     restart: always
     ports:
-      - 8124:8124
+      - 8123:8123
     command:
       - "--global.sendAnonymousUsage=false"
       - "--providers.docker"

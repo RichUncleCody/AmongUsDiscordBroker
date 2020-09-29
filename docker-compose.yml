@@ -10,7 +10,7 @@ services:
       - "--global.sendAnonymousUsage=false"
       - "--providers.docker"
       - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.autls.address=:8124"
+      - "--entrypoints.autls.address=:8123"
       - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/etc/acme/acme.json"

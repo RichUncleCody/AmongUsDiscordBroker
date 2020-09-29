@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  traefik:
+    image: traefik:v2.0
+    restart: always
+    ports:
+      - 8124:8124
+    command:
+      - "--global.sendAnonymousUsage=false"
+      - "--providers.docker"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.autls.address=:8124"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/etc/acme/acme.json"
+      - "--api.dashboard=true"
+      - "--providers.docker.exposedbydefault=false"
+    volumes:
+      -  /var/run/docker.sock:/var/run/docker.sock        
+      - ./acme/:/etc/acme/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.rule=Host(`${DOMAIN_NAME}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${AUTH_STRING}"
+
+  amongusdiscord:
+#    build: $PWD/bot/.
+    build:
+      context:https://github.com/denverquane/amongusdiscord.git
+    environment:
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+
+  amongusbroker:
+    build: $PWD/broker/.
+    environment:
+      - BACKEND_SERVER=amongusdiscord
+    depends_on:
+      - amongusdiscord
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.services.autls.loadbalancer.server.port=8123"
+      - "traefik.tcp.routers.autls.entrypoints=autls"
+      - "traefik.tcp.routers.autls.rule=HostSNI(`${DOMAIN_NAME}`)"
+      - "traefik.tcp.routers.autls.service=autls"
+      - "traefik.tcp.routers.autls.tls.certresolver=letsencrypt"
+

@@ -22,3 +22,4 @@ ending.png
 acme.json
 .env
 /broker/node_modules
+/broker/.vs

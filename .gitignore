@@ -25,3 +25,4 @@ acme.json
 /broker/.vs
 /.vs
 /node_modules
+/aubroker.njsproj

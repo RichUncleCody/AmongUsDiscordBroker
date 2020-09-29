@@ -30,8 +30,8 @@ services:
 
   amongusdiscord:
 #    build: $PWD/bot/.
-    build:
-      context:https://github.com/denverquane/amongusdiscord.git
+#    build:https://github.com/denverquane/amongusdiscord.git
+    build:https://github.com/RichUncleCody/amongusdiscord.git
     environment:
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
 

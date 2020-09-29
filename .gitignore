@@ -23,3 +23,5 @@ acme.json
 .env
 /broker/node_modules
 /broker/.vs
+/.vs
+/node_modules

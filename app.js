@@ -18,26 +18,22 @@ io.on("connection", function (socket) {
     activeConnections.add(socket.id);
     console.log(`New connection from: ${socket.id}`);
     console.log(`Concurrent connections: ${activeConnections.size}`);
-    let authenticated = false;
-
-//  var clientSocket = client.connect("http://" + process.env.BACKEND_SERVER + ":8123");
     var clientSocket;
+    var backend;
 
-//  console.log("Backend connection on " + process.env.BACKEND_SERVER + " is " + clientSocket.connected)
     socket.on("connectcode", function (data) {
-        var backend;
-        if (backend = authenticator.auth(data)) {
+        console.log(`connectcode: ${data}`)
+        backend = authenticator.auth(data);
+        if (backend) {
             clientSocket = client.connect("http://" + backend + ":8123");
-            clientSocket.emit(`connectcode ${data}`)
-            console.log(`connectcode: ${data}`)
-            authenticated = true;
+            clientSocket.emit(`connectcode ${data}`);
         } else {
-            console.log(`Invalid connectcode: ${data}`)
+            console.log(`Invalid connectcode: ${connectcode}`);
         }
     });
 
     socket.on("state", function (data) {
-        if (authenticated) {
+        if (clientSocket) {
             clientSocket.emit("state", data);
             console.log(`state: ${data}`)
         } else {
@@ -47,7 +43,7 @@ io.on("connection", function (socket) {
     });
 
     socket.on("player", function (data) {
-        if (authenticated) {
+        if (clientSocket) {
             clientSocket.emit("player", data);
             console.log(`player: ${data}`);
         } else {
@@ -58,7 +54,7 @@ io.on("connection", function (socket) {
 
     socket.on("disconnect", function (data) {
         console.log(`Client disconnect reason: ${data}`)
-        clientSocket.disconnect();
+        if (clientSocket) { clientSocket.disconnect(); };
         activeConnections.delete(socket.id);
     });
 

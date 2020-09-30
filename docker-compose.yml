@@ -28,18 +28,22 @@ services:
       - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
       - "traefik.http.routers.dashboard.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=${AUTH_STRING}"
+#    logging:
+#      driver: json-file
 
   amongusdiscord:
-#    build: $PWD/bot/.
 #    build:https://github.com/denverquane/amongusdiscord.git
     build: https://github.com/RichUncleCody/amongusdiscord.git
     environment:
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+#   logging:
+#     driver: json-file
 
   amongusbroker:
     build: .
     environment:
       - BACKEND_SERVER=amongusdiscord
+      - DB=redis
     depends_on:
       - amongusdiscord
     labels:
@@ -49,4 +53,11 @@ services:
       - "traefik.tcp.routers.autls.rule=HostSNI(`${DOMAIN_NAME}`)"
       - "traefik.tcp.routers.autls.service=autls"
       - "traefik.tcp.routers.autls.tls.certresolver=letsencrypt"
+#    logging:
+#      driver: json-file
 
+  redis:
+    image: "redis:latest"
+    command: redis-server
+#    logging:
+#      driver: json-file
